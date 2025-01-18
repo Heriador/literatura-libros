@@ -7,13 +7,12 @@ import java.net.http.HttpResponse;
 
 public class GutendexApi {
 
-    private final String BASE_URL = "https://gutendex.com/books/";
+    private static final String BASE_URL = "https://gutendex.com/books/";
     private final HttpClient client = HttpClient.newHttpClient();
 
     public String getBookByTitle(String title) {
 
-        String url = this.BASE_URL + "?search=" + title;
-        System.out.println(url);
+        String url = BASE_URL + "?search=" + title;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(url))
                 .build();
