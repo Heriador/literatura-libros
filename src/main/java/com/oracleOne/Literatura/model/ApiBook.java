@@ -7,12 +7,16 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiBook {
+
     @JsonAlias("title")
     private String title;
+
     @JsonAlias("authors")
     private List<ApiAuthor> authorList;
+
     @JsonAlias("languages")
     private List<String> languages;
+
     @JsonAlias("download_count")
     private Double downloadCount;
 
