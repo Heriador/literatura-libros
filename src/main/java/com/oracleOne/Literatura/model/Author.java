@@ -21,6 +21,9 @@ public class Author {
     @Column(nullable = false)
     Integer deathYear;
 
+    public Author() {
+    }
+
     public Author(ApiAuthor apiAuthor){
         this.name = apiAuthor.getName();
         this.birthYear = apiAuthor.getBirthYear();
@@ -70,5 +73,14 @@ public class Author {
 
     public void setDeathYear(Integer deathYear) {
         this.deathYear = deathYear;
+    }
+
+    @Override
+    public String toString() {
+        return "\n---------------Author-----------------" +
+                "\nname: " + name +
+                "\nbirthYear: " + birthYear +
+                "\ndeathYear: " + deathYear +
+                "\n--------------------------------------";
     }
 }

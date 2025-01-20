@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiBook {
@@ -59,7 +60,7 @@ public class ApiBook {
     public String toString() {
         return  "----------------------LIBRO-----------------------"+
                 "\nTitulo: " + this.title +
-                "\nLista de Autores: " + this.authorList.stream().map(ApiAuthor::getName).toList() +
+                "\nLista de Autores: " + this.authorList.stream().map(ApiAuthor::getName).collect(Collectors.joining(";")) +
                 "\nIdiomas: " + String.join(", ", this.languages) +
                 "\nNumero de descargas: " + this.downloadCount+
                 "\n--------------------------------------------------";

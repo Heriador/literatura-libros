@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "books")
@@ -20,7 +21,7 @@ public class Book {
     private Double downloadCount;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "books_authors",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -72,5 +73,16 @@ public class Book {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    @Override
+    public String toString() {
+        return  "----------------------LIBRO-----------------------"+
+                "\nTitulo: " + this.title +
+                "\nLista de Autores: " + this.authors.stream().map(Author::getName).collect(Collectors.joining("; ")) +
+                "\nIdiomas: " + this.language +
+                "\nNumero de descargas: " + this.downloadCount+
+                "\n--------------------------------------------------";
+
     }
 }

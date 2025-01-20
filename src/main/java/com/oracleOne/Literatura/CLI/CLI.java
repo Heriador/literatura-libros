@@ -4,16 +4,18 @@ import com.oracleOne.Literatura.model.ApiBook;
 import com.oracleOne.Literatura.model.ApiResponse;
 import com.oracleOne.Literatura.model.Author;
 import com.oracleOne.Literatura.model.Book;
-import com.oracleOne.Literatura.repository.IAuthorRepository;
-import com.oracleOne.Literatura.repository.IBookRepository;
+import com.oracleOne.Literatura.service.AuthorService;
+import com.oracleOne.Literatura.service.BookService;
 import com.oracleOne.Literatura.service.ClassMapperService;
 import com.oracleOne.Literatura.service.GutendexApi;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+@Component
 public class CLI {
 
     private Scanner scanner = new Scanner(System.in);
@@ -21,12 +23,13 @@ public class CLI {
 
     private ClassMapperService classMapperService = new ClassMapperService();
 
-    private final IBookRepository bookRepository;
-    private final IAuthorRepository authorRepository;
+    private BookService bookService;
+    private AuthorService authorService;
 
-    public CLI(IBookRepository bookRepository, IAuthorRepository authorRepository) {
-        this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
+
+    public CLI(BookService bookService, AuthorService authorService) {
+      this.bookService = bookService;
+      this.authorService = authorService;
     }
 
     public void mainMenu(){
@@ -48,12 +51,30 @@ public class CLI {
         while (option != 0){
 
             System.out.println(menu);
+            System.out.println("Opcion: ");
             option = scanner.nextInt();
             scanner.nextLine();
 
             switch (option){
                 case 1:
                     searchBookByTitle();
+                    break;
+                case 2:
+                    System.out.println("-----------------------------LISTA DE LIBROS-------------------------------------");
+                    bookService.findAllBooks().forEach(System.out::println);
+                    break;
+                case 3:
+                    System.out.println("-----------------------------LISTA DE AUTORES-------------------------------------");
+                    authorService.findAllAuthors().forEach(System.out::println);
+                    break;
+                case 4:
+                    searchAliveAuthorsInGivenYear();
+                    break;
+                case 5:
+                    searchBooksByLanguage();
+                    break;
+                case 0:
+                    System.out.println("Saliendo...");
                     break;
                 default:
                     System.out.println("Opcion no valida");
@@ -78,7 +99,7 @@ public class CLI {
 
             ApiBook apiBook = result.get();
 
-            if(bookRepository.existsByTitle(apiBook.getTitle())){
+            if(bookService.existsByTitle(apiBook.getTitle())){
                 System.out.println("------------------------------------------------------------------");
                 System.out.println("Libro ya registrado");
                 System.out.println("------------------------------------------------------------------");
@@ -95,13 +116,13 @@ public class CLI {
                 List<Author> authors = new ArrayList<>();
 
                 apiBook.getAuthorList().forEach(apiAuthor -> {
-                    if(!authorRepository.existsByName(apiAuthor.getName())){
+                    if(!authorService.existsByName(apiAuthor.getName())){
                         Author author = new Author(apiAuthor);
-                        authorRepository.save(author);
+                        authorService.saveAuthor(author);
                         authors.add(author);
                     }
                     else{
-                        authors.add(authorRepository.findByName(apiAuthor.getName()).get());
+                        authors.add(authorService.findByName(apiAuthor.getName()).get());
                     }
                 });
 
@@ -109,7 +130,7 @@ public class CLI {
 
 
                 System.out.println("\n"+result.get());
-                bookRepository.save(book);
+                bookService.saveBook(book);
                 System.out.println("------------------------------------------------------------------");
                 System.out.println("Libro guardado con exito");
                 System.out.println("------------------------------------------------------------------");
@@ -126,4 +147,34 @@ public class CLI {
         }
     }
 
+    private void searchAliveAuthorsInGivenYear(){
+        System.out.print("Ingresa el año: ");
+        int year = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("------------------------------------------------------------------");
+        List<Author> authors = authorService.findByBirthYearLessThanEqualAndDeathYearGreaterThan(year);
+
+        if(authors.isEmpty()){
+            System.out.println("No hay autores vivos en ese año");
+        }
+        else{
+            authors.forEach(System.out::println);
+        }
+        System.out.println("------------------------------------------------------------------");
+    }
+
+    private void searchBooksByLanguage(){
+        System.out.print("Ingresa el idioma: ");
+        String language = scanner.nextLine();
+        System.out.println("------------------------------------------------------------------");
+        List<Book> books = bookService.findByLanguage(language);
+
+        if(books.isEmpty()){
+            System.out.println("No hay libros en ese idioma");
+        }
+        else{
+            books.forEach(System.out::println);
+        }
+        System.out.println("------------------------------------------------------------------");
+    }
 }
